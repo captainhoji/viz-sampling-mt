@@ -36,6 +36,7 @@ class Pipeline:
     def generate_plots(self, DD, comparison=True):
         f = plt.figure()
         f.set_figwidth(25)
+        f.set_figheight((int(len(DD)/6) + 1)*4)
 
         for i in range(len(DD)):
             D = DD[i]
@@ -47,9 +48,10 @@ class Pipeline:
             y_learned_from_sample = model_sample.predict(x)          
             distance = self.E(D, model_sample)
 
-            plt.subplot(1, len(DD), (i+1)) 
-            plt.title("D%s" % (i+1))
+            plt.subplot(int(len(DD)/6) + 1, 6, (i+1))
+            plt.title(f"{D['name']}")
             plt.xlabel("distance = %.5f" % distance)
+
             plt.plot(x,y)
             plt.plot(x,y_learned_from_sample)
             if comparison:
@@ -57,6 +59,10 @@ class Pipeline:
                 y_learned_from_raw = model_raw.predict(x)
                 plt.plot(x,y_learned_from_raw)
             plt.plot(sample[0], sample[1], 'ro')
+
+            plt.axis('off')
+        plt.subplots_adjust(hspace=0.25)
+        plt.show()
 
 def E_MSE(D, model):
     x = D['x'].reshape(-1, 1)
