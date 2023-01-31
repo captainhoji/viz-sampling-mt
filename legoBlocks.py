@@ -44,9 +44,12 @@ class Pipeline:
             y = D['y']
 
             sample, _ = self.generate_sample(D)
+            # print(f"{D['name']}: sample_x = {sample[0]}")
+            # print(f"{D['name']}: sample_y = {sample[1]}")
             model_sample = self.H(sample[0], sample[1])
             y_learned_from_sample = model_sample.predict(x)          
             distance = self.E(D, model_sample)
+
 
             plt.subplot(int(len(DD)/6) + 1, 6, (i+1))
             plt.title(f"{D['name']}")
@@ -185,9 +188,10 @@ class H_PL7(H_PL):
     def fit(self, X, y):
         if (len(X) > 7):
             self.X = X[len(X)-7:]
+            self.y = y[len(y)-7:]
         else:
             self.X = X
-        self.y = y
+            self.y = y
     
     def predict(self, dX):
         return super().predict(dX)
@@ -308,3 +312,142 @@ def T_GreedyConstruction(D, H, evaluator):
     y_sample_sorted = [x for _,x in sorted(zip(x_sample_min,y_sample_min))]
 
     return [x_sample_sorted, y_sample_sorted], minDist
+
+def T_HillClimbing(D, H, evaluator):
+    x = D['x']
+    y = D['y']
+    did = D['name']
+    table = {}
+    for i in range(len(x)):
+        table[x[i]] = y[i]
+        
+    sample, minDist = T_GreedyConstruction(D, H, evaluator)
+    x_sample = sample[0]
+    y_sample = sample[1]
+    x_sample_min = x_sample
+    y_sample_min = y_sample
+        
+    x_pool = x
+    for sx in range(len(x_sample)):
+        x_pool = x_pool[x_pool != sx]
+        
+    distance = math.inf
+    index = 0
+    tries = 0
+    while tries < 100:
+        x_temp = x_sample
+        y_temp = y_sample
+
+        rng = random.random()
+        x_added = -1
+        x_removed = -1
+        # add one element or remove one element or change one element
+        if rng < 1/3 or rng > 2/3:
+            x_added = x_pool[int(random.random()*len(x_pool))]
+            x_pool = x_pool[x_pool != x_added]
+            x_temp = np.append(x_temp, x_added)
+            y_temp = np.append(y_temp, table[x_added])
+        if 1/3 < rng and len(x_sample) > 2:
+            x_removed = x_sample[int(random.random()*len(x_sample))]
+            x_temp = np.delete(x_temp, np.argwhere(x_temp == x_removed))
+            y_temp = np.delete(y_temp, np.argwhere(y_temp == table[x_removed]))
+            x_pool = np.append(x_pool, x_removed)
+
+
+        x_temp_sorted = [i for i,_ in sorted(zip(x_temp,y_temp))]
+        y_temp_sorted = [j for _,j in sorted(zip(x_temp,y_temp))]
+
+        human = H(x_temp_sorted, y_temp_sorted)
+        distance_curr = evaluator(D, human)
+        if (distance_curr < minDist):
+            minDist = distance_curr
+            x_sample = x_temp_sorted
+            y_sample = y_temp_sorted
+            tries = 0
+        else:
+            if x_added != -1:
+                x_pool = np.append(x_pool, x_added)
+            if x_removed != -1:
+                x_pool = x_pool[x_pool != x_removed]
+            tries += 1
+    return [x_sample, y_sample], minDist
+
+def T_HillClimbingRestart(D, H, evaluator):
+    x = D['x']
+    y = D['y']
+    did = D['name']
+    table = {}
+    for i in range(len(x)):
+        table[x[i]] = y[i]
+        
+    x_sample_min = None
+    y_sample_min = None
+
+    minDistGlobal = math.inf
+    for k in range(100):
+        x_sample = []
+        y_sample = []
+        
+        for u in range(len(x)):
+            index_sample = random.sample(range(len(x)), 7)
+            x_sample = x[index_sample]
+            y_sample = y[index_sample]
+        minDist = math.inf
+        x_pool = x
+        for sx in range(len(x_sample)):
+            x_pool = x_pool[x_pool != sx]
+        tries = 0
+        while tries < 100:
+            x_temp = x_sample
+            y_temp = y_sample
+
+            rng = random.random()
+            x_added = -1
+            x_removed = -1
+            # add one element or remove one element or change one element
+            if rng < 1/3 or rng > 2/3:
+                x_added = x_pool[int(random.random()*len(x_pool))]
+                x_pool = x_pool[x_pool != x_added]
+                x_temp = np.append(x_temp, x_added)
+                y_temp = np.append(y_temp, table[x_added])
+            if 1/3 < rng and len(x_sample) > 2:
+                x_removed = x_sample[int(random.random()*len(x_sample))]
+                x_temp = np.delete(x_temp, np.argwhere(x_temp == x_removed))
+                y_temp = np.delete(y_temp, np.argwhere(y_temp == table[x_removed]))
+                x_pool = np.append(x_pool, x_removed)
+
+            sample_sorted = sorted(zip(x_temp,y_temp))
+            x_temp_sorted = [i for i,_ in sample_sorted]
+            y_temp_sorted = [j for _,j in sample_sorted]
+
+            human = H(x_temp_sorted, y_temp_sorted)
+            distance_curr = evaluator(D, human)
+            if (distance_curr < minDist):
+                minDist = distance_curr
+                x_sample = x_temp_sorted
+                y_sample = y_temp_sorted
+                tries = 0
+            else:
+                if x_added != -1:
+                    x_pool = np.append(x_pool, x_added)
+                if x_removed != -1:
+                    x_pool = x_pool[x_pool != x_removed]
+                tries += 1
+        if minDist < minDistGlobal:
+            minDistGlobal = minDist
+            x_sample_min = x_sample
+            y_sample_min = y_sample
+
+    return [x_sample_min, y_sample_min], minDistGlobal
+
+def E_extrema(D, model):
+    x = D['x'].reshape(-1, 1)
+    y = D['y']
+    y_predicted = model.predict(x)
+    return (y.max() - y_predicted.max()) ** 2 + (y.min() - y_predicted.min()) ** 2
+
+def E_MSE_extrema(D, model):
+    x = D['x'].reshape(-1, 1)
+    y = D['y']
+    y_predicted = model.predict(x)
+    return E_MSE(D, model) + 10 * ((y.max() - y_predicted.max()) ** 2 + (y.min() - y_predicted.min()) ** 2)

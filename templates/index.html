@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- font -->
+        <link href='https://fonts.googleapis.com/css?family=Raleway:400,100,100italic,200,200italic,300,300italic,400italic,500,500italic,600,600italic,700,700italic,800,800italic,900,900italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300italic,300,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Carrois+Gothic+SC' rel='stylesheet' type='text/css'>
+
+        <title>Expectation Visualization</title>
+        <!-- css -->
+        <link rel="stylesheet" href="{{ url_for('static', filename = 'style.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename = 'ev-style.css') }}">
+        <!-- js -->
+</head>
+
+<body>
+	<div id="mainContainer">
+		<div id="main">
+			<div id="titleDiv">
+				<img id="icon" src="{{ url_for('static', filename = 'images/iconBlue.png') }}"><span id="title"> Cognitive modeling approach to simulate user perception of data visualization </span>
+				<span id="source">
+					<span id="sourceText"> Source Code: </span>
+					<a href="https://github.com/captainhoji/viz-sampling-mt" target="_blank"><img src="{{ url_for('static', filename = 'images/git.png') }}"></a>
+				</span>
+				<div id="author">By Jiho Kim</div>
+			</div>
+
+			<hr width="100%" class="mainhr">
+<!-- 
+			<div class="containerLv1">What if visualizations allowed you to draw your </br> <span> expectations</span> of data prior to viewing the data? </div>
+			<div class="bodyText">
+				Expectation Visualization (EV) is an interactive visualization technique for soliciting user input and presenting personalized feedback based on users' expectations of data. Based on positive evidence of the impact of prompting and self-explanation in learning, we expect that EV will provide users with greater understanding of a particular dataset and may also improve recall about dataset attributes.<br><br>
+				As employed in this project, EV consists of having users draw their expectations of data represented as a line chart before being shown personalized feedback, the actual data, and aggregate drawings from other users. We present 3 different datasets that users can select from: worldwide CO<sub>2</sub> emissions data over time, the US immigrant population over time, and the wealth share of the top 10% in the US over time.
+			</div>
+
+			<div class="containerLv1">Why Expectation Visualization? </div>
+			<div class="containerLv2">Self-explanation improves learning (Chi et al., 1989)</div>
+			<div class="bodyText">
+				Psychology research indicates that activities such as drawing and self-explanation help facilitate learning. EV gives users a chance to actively engage with the visualization by drawing their expectations first and then being shown feedback. By visualizating users' expectations along with true data, EV prompts users to generate self-explanations about the errors they make, thereby improving learning.
+			</div>
+
+			<div class="containerLv2">Knowledge gaps encourage curiosity (Loewenstein, 1994)</div>
+			<div class="bodyText">
+				Curiosity is piqued when one perceives a gap between what they know and what they want to know. This is demonstrated in settings where participants complete more tasks and show a higher persistence on difficult tasks when the learning gap is effectively motivated by the task's stimuli (Law et al, 2016). By showing how a users' prior knowledge compares to reality, EV helps users perceive this gap and pique their curiosity about data.
+			</div>
+
+			<div class="containerLv2">Connecting representations of data helps reasoning (Trafton, 2005)</div>
+			<div class="bodyText">
+				As one grapples with comparing and aligning their mental representations of data with the actual data, they are actively engaging in a process to improve reasoning and promote exploration. EV provides a medium by which visualizations can be used  not only to represent actual data but also depict users' existing mental representations. In this manner, EV promotes the connecting of data representations and improves users' ability to reason. 
+			</div>
+
+			<div class="containerLv2">Personalized feedback promotes engagement (Hullman et al., 2011)</div>
+			<div class="bodyText">
+				Prior research indicates that tailoring and personalizing visualizations can subtly induce interest and engagement. EV teases out users' prior knowledge and makes it part of the visualization space in an organic way. Providing personalized feedback to users thereafter only increases the degree to which EV can increase user engagement by personalizing the presentation of information. 
+			</div>
+
+
+
+			<hr width="100%" class="greyhr">
+
+			<div class="containerLv1">Try it!</div>
+-->
+			<div class="controlP" id="colFirst">
+			<div class="colInner" id="datasource">
+		          	<p>Data</p>
+		          	<ul class="nav nav-pills mode-switch">
+		          	{%for i in range(datasets|length)%}
+		          		{%if i == 0%}
+		          		<li class="active switch-measurement
+		          		{%else%}
+		          		<li class="switch-measurement
+		          		{%endif%}
+		          		datasource"><a onclick="onDataClick(event, {{i}})">{{datasets[i].display}}</a></li>
+				{%endfor%}
+			        </ul>
+		          <!-- <span class="theory">Or the whole dataset.</span> -->
+	          	</div>
+			</div>
+
+			<div class="controlP" id="colSecond">
+			<div class="colInner">
+			<p>Human Proxy</p>
+		        <!-- <span class="theory">Learning</span> -->
+			        <ul class="nav nav-pills mode-switch">
+			        {%for i in range(humans|length)%}
+		          		{%if i == 0%}
+			            	<li class="active switch-measurement
+			            	{%else%}
+			        	<li class="switch-measurement
+			        	{%endif%}
+			        	human"><a onclick="onHumanClick(event, {{i}})">{{humans[i]}}</a></li>
+			        {%endfor%}
+			        </ul>
+			<!-- <span class="theory">Memory</span>
+			       	<ul class="nav nav-pills mode-switch">
+			        	<li class="switch-measurement"><a>Hard Memory Limit</a></li>
+			        	<li class="switch-measurement"><a>Primacy</a></li>
+			        	<li class="switch-measurement"><a>Recency</a></li>
+			        </ul> -->
+	          	</div>
+			</div>
+
+			<div class="controlP" id="colThird">
+			<div class="colInner" id="feedback">
+		          <p>Teacher Strategy</p>
+		          <ul class="nav nav-pills mode-switch">
+			        <li class="active switch-measurement"><a>Assume OLS</a></li>
+			        <li class="switch-measurement"><a>Assume connect the dots</a></li>
+			        <li class="switch-measurement"><a>Hill climb with restart</a></li>
+			  </ul>
+		          <!-- <span class="theory"> When you're learning new things, "clarifying and addressing comprehension failures" will help you learn better (Bielaczyc et al., 1995). The feedback will help you to learn about data better.</span> -->
+	          	</div>
+			</div>
+
+
+			<div class="controlP" id="colForth">
+			<div class="colInner">
+		          <p>Evaluation Criteria</p>
+		          <span class="theory"></span>
+			     <ul class="nav nav-pills mode-switch">
+			     <li class="active switch-measurement show_agg"><a id="agg_on">Retrieve Value</a></li>
+			     <li class="switch-measurement show_agg"><a id="agg_off">Find Extrema</a></li>
+			     </ul>
+	          	</div>
+			</div>
+
+			<div id="canvasDrawing">
+			<div id="canvasDrawingInner">
+   			<svg></svg>
+			</div>
+			</div>
+
+			<!-- <div id="feedbackLegend"></div> -->
+
+			<div id="lineButtons"> <br>
+			  <center>
+			    <button class="btn btn-success" disabled="disabled" id="next">Generate</button> &nbsp;&nbsp;
+			    <button class="btn btn-danger" id="clear">Reset</button>
+			  </center>
+			</div>
+<!-- 			<div id = "feedbackDiv">
+				<div id="dataDescriptor"></div>
+				<div id="textFeedback">
+					<div class="containerLv1">Here's how you did with respect to trends in the actual data:</div>
+				</div>
+			</div> -->
+			
+			<hr width="100%" class="greyhr">
+<!-- 				<div class="containerLv1">References </div>
+			<ul>
+				<li class="paper"> Bielaczyc, K., Pirolli, P. L., & Brown, A. L. (1995). Training in self-explanation and self-regulation strategies: Investigating the effects of knowledge acquisition activities on problem solving. Cognition and instruction, 13(2), 221-252. </li>
+				
+				<li class="paper"> Campbell, L., & Campbell, B. (2008). Mindful learning: 101 proven strategies for student and teacher success. Corwin Press.</li>
+				
+				<li class="paper"> Chi, M. T., Bassok, M., Lewis, M. W., Reimann, P., & Glaser, R. (1989). Self-explanations: How students study and use examples in learning to solve problems. Cognitive science, 13(2), 145-182. </li>
+
+				<li class="paper"> Hullman, J., Adar, E., & Shah, P. (2011). Benefitting infovis with visual difficulties. Visualization and Computer Graphics, IEEE Transactions on, 17(12), 2213-2222. </li>
+				
+				<li class="paper"> Law, E., Yin, M., Joslin Goh, K. C., Terry, M., & Gajos, K. Z. (2016, May). Curiosity Killed the Cat, but Makes Crowdwork Better. In Proceedings of the 2016 CHI Conference on Human Factors in Computing Systems (pp. 4098-4110). ACM. </li>
+				
+				<li class="paper"> Loewenstein, G. (1994). The psychology of curiosity: A review and reinterpretation. Psychological bulletin, 116(1), 75. </li>
+
+				<li class="paper"> Trafton, J. G., Trickett, S. B., & Mintz, F. E. (2005). Connecting internal and external representations: Spatial transformations of scientific visualizations. Foundations of Science, 10(1), 89-106.</li>
+			</ul>
+ -->
+		</div>
+	</div>
+  <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="https://cdn.jsdelivr.net/lodash/4.11.2/lodash.js"></script>
+  <script type="text/javascript">
+        var datasets = {{datasets|tojson}}
+        var humans = {{humans|tojson}}
+        var teachers = {{teachers|tojson}}
+        var evaluators = {{evaluators|tojson}}
+  </script>
+  <script src="{{ url_for('static', filename = 'line_ev.js') }}"></script>
+  <script src="{{ url_for('static', filename = 'index.js') }}"></script>
+</body>

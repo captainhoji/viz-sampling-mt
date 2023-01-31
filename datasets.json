@@ -1,0 +1,78 @@
+{
+  "datasets": [
+  {
+    "display" : "Worldwide CO2 Emissions",
+    "true_values" : "data/co2Emissions.csv",
+    "user_values" : "userData/co2UserData.csv",
+    "x_label" : "Year",
+    "x_prop" : "Year",
+    "y_label" : "Million Metric Tons of C",
+    "y_prop" : "Total",
+	  "descriptor" : "Carbon dixode emissions were relatively stable until the mid-19th century. The rise of manufacturing and production during the Industrial Revolution brought an increase in cars, factories, and carbon emissions. Since then, carbon dioxide emissions have increased at an exponential rate."
+  },
+  {
+    "display" : "US Immigrant Population",
+    "true_values" : "data/immigrantPopulation.csv",
+    "user_values" : "userData/immigrationUserData.csv",
+    "x_label" : "Year",
+    "x_prop" : "Year",
+    "y_label" : "% of Population as Immigrants",
+    "y_prop" : "Percentage",
+	  "descriptor" : "The percentage of immigrants living in the US remained fairly steady towards the end of the 19th century before declining a great deal towards the middle of the 20th century, largely due to the The Johnson-Reed Act of 1924. The downward trend continued through the 1960s, when the Immigration and Naturalization Act of 1965 was passed. Thereafter, the trend has remained steadily increasing."
+  },
+  {
+    "display" : "US Wealth Share of the Top 10%",
+    "true_values" : "data/wealthShare.csv",
+    "user_values" : "userData/wealthUserData.csv",
+    "x_label" : "Year",
+    "x_prop" : "Year",
+    "y_label" : "Wealth Share (%)",
+    "y_prop" : "top10Percent",
+	  "descriptor" : "The wealth share of the wealthiest 10% of Americans saw a continual decrease after the Great Depression through the late 20th century, reaching a low in the 1970s-1980s. Since the 1970s, the trend has reversed and the wealth share of the wealthiest has seen a steady rise, owing to slowing economic growth and less progressive taxes, among other things."
+  },
+  {
+    "display" : "Life Expectancy of Venezuela",
+    "true_values" : "data/s0.csv",
+    "x_label" : "Year",
+    "x_prop" : "Year",
+    "y_label" : "Life Expectancy (Age)",
+    "y_prop" : "Age",
+    "descriptor" : "This line chart shows how the life expectancy of Venezuela changed over time."
+  },
+  {
+    "display" : "Military Expenditure of Argentina",
+    "true_values" : "data/s1.csv",
+    "x_label" : "Year",
+    "x_prop" : "Year",
+    "y_label" : "Military Expenditure (Dollars)",
+    "y_prop" : "Military Expenditure (Dollars)",
+    "descriptor" : "This line chart shows how the military expenditure of Argentina changed over time."
+  },
+  {
+    "display" : "Air Pollution in London",
+    "true_values" : "data/s2.csv",
+    "x_label" : "Year",
+    "x_prop" : "Year",
+    "y_label" : "Suspended Particulate Matter (SPM)",
+    "y_prop" : "Suspended Particulate Matter (SPM)",
+    "descriptor" : "This line chart shows how the air pollution of London changed over time."
+  },
+  {
+    "display" : "Alcohol Consumption of Americans",
+    "true_values" : "data/s3.csv",
+    "x_label" : "Year",
+    "x_prop" : "Year",
+    "y_label" : "Alcohol Consumption per Individual (Liters)",
+    "y_prop" : "Alcohol Consumption per Capita (Liters)",
+    "descriptor" : "This line chart shows how the alcohol consumption of Americans changed over time."
+  },
+  {
+    "display" : "GDP of Costa Rica",
+    "true_values" : "data/s4.csv",
+    "x_label" : "Year",
+    "x_prop" : "Year",
+    "y_label" : "GDP per Capita (Dollars)",
+    "y_prop" : "GDP per Capita (Dollars)",
+    "descriptor" : "This line chart shows how the GDP of Costa Rica changed over time."
+  }
+]}
