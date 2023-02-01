@@ -7,6 +7,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.base import BaseEstimator, RegressorMixin
+import random
+import os
 
 class IHumanProxy(ABC):
     
@@ -25,13 +27,16 @@ class Pipeline:
     evaluator: evaluates sample w.r.t original data.
     """
     def __init__(self, human_proxy, teacher, evaluator):
-#         if not isinstance(human_proxy, IHumanProxy): raise Exception('Bad interface')
+        # if not isinstance(human_proxy, IHumanProxy): raise Exception('Bad interface')
         self.H = human_proxy
         self.T = teacher
         self.E = evaluator
 
     def generate_sample(self, D):
         return self.T(D, self.H, self.E)
+
+    def getScore(self, D, sample):
+        return self.E(D, self.H(sample[0], sample[1]))
 
     def generate_plots(self, DD, comparison=True):
         f = plt.figure()
@@ -79,9 +84,11 @@ class H_OLS(IHumanProxy):
         self.fit(x, y)
         
     def fit(self, x, y):
+        x = np.array(x).reshape(-1,1)
         self.model.fit(x, y)
 
     def predict(self, x):
+        x = np.array(x).reshape(-1,1)
         return self.model.predict(x)
 
 """
@@ -111,14 +118,17 @@ def T_OLS2(D, H, evaluator):
 
 class H_quad(IHumanProxy):
     def __init__(self, x, y):
-        self.poly = PolynomialFeatures(degree=2, include_bias=True)
+        self.poly = PolynomialFeatures(degree=2, include_bias=False)
         self.model = LinearRegression()
-        self.fit(self.poly.fit_transform(x), y)
+        self.fit(x, y)
         
     def fit(self, x, y):
+        x = np.array(x).reshape(-1,1)
+        x = self.poly.fit_transform(x)
         self.model.fit(x, y)
 
     def predict(self, x):
+        x = np.array(x).reshape(-1,1)
         return self.model.predict(self.poly.fit_transform(x))
 
 def T_quad3(D, H, evaluator):
@@ -127,14 +137,14 @@ def T_quad3(D, H, evaluator):
     minDist = math.inf
     minS = [[],[]]
     poly = PolynomialFeatures(degree=2, include_bias=True)
-    h_tilde = LinearRegression()
     for i in range(len(x)):
         for j in range(i+1, len(x)):
             for k in range(j+1, len(x)):
-                x_sample = np.array([x[i], x[j], x[k]]).reshape(-1, 1)
+                x_sample = np.array([x[i], x[j], x[k]])
                 y_sample = np.array([y[i], y[j], y[k]])
-                h_tilde.fit(poly.fit_transform(x_sample), y_sample)
-                y_predicted = h_tilde.predict(poly.fit_transform(x))
+                # h_tilde.fit(poly.fit_transform(x_sample), y_sample)
+                h_tilde = H_quad(x_sample, y_sample)
+                y_predicted = h_tilde.predict(x)
                 distance = mean_squared_error(y, y_predicted)
                 if (distance < minDist):
                     minDist = distance
@@ -205,12 +215,15 @@ def T_PL(D, n, evaluator):
     minDist = math.inf
     minx0 = -1
     minx1 = -1
-#     recnp = np.load("storage/recnp%s.npy" % (did)) #load from disk
-#     recdist = np.load("storage/recdist%s.npy" % (did)) #load from disk
     recnp = np.ones([len(x), len(x)]) * -1
     recdist = np.ones([len(x), len(x)]) * -1
-#     if recnp[prevx][n] != -1:
-#         return recnp[prevx][n], recdist[prevx][n]
+    recnp_path = "storage/recnp%s.npy" % (did)
+    recdist_path = "storage/recdist%s.npy" % (did)
+    if os.path.isfile(recnp_path) and os.path.isfile(recdist_path):
+        recnp = np.load(recnp_path) #load from disk
+        recdist = np.load(recdist_path) #load from disk
+        # if recnp[prevx][n] != -1:
+        #     return recnp[prevx][n], recdist[prevx][n]
     
     for i in range(len(x)):
         for j in range(i + 1, len(x)):

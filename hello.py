@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template, send_file
+from flask import Flask, redirect, url_for, render_template, send_file, request, jsonify
 import json
 from legoBlocks import *
 import pipeline
@@ -26,15 +26,16 @@ def getUserData(filename):
    except Exception as e:
       return str(e)
 
-@app.route('/runPipeline', methods = ['GET'])
+@app.route('/pipeline', methods = ['GET'])
 def generateSample():
    data = request.args.get('data')
    human = request.args.get('h')
    teacher = request.args.get('t')
    evaluator = request.args.get('e')
+   print(f"running: {data}, {human}, {teacher}, {evaluator}")
    try:
-      sample, score = pipeline.run(data, human, teacher, evaluator)
-      return sample, score
+      response = pipeline.run(data, human, teacher, evaluator)
+      return response
    except Exception as e:
       print(e)
 

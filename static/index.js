@@ -3,6 +3,10 @@ var options = { verbose: true,
                 agg_points: true,
                 update_feedback: true };
 var chart;
+var dataIndex = 0
+var humanIndex = 0 
+var teacherIndex = 0
+var evaluatorIndex = 0
 
 // var feedback_options = [
 //   {
@@ -43,14 +47,14 @@ function make_experiment(dataset) {
   //   function(error, aggregate_data) {
   //     // Inverts the array, so each row is per-subject rather than per-year
   //     aggregate_data = _.spread(_.zip)(aggregate_data);
-      d3.csv(dataset.true_values,
+      d3.csv("data/" + dataset.true_values,
         _.partial(parse_row, dataset),
         function(error, actual_data) {
           true_values = _.zip(_(actual_data).map(dataset.x_prop).value(),
           _(actual_data).map(dataset.y_prop).value());
           chart = new d3.line_ev(true_values, aggregate_data, dataset, options);
           chart.render_chart(960, 500, d3.select("svg"));
-          chart.draw_actual();
+          chart.draw_data(true_values);
           // d3.select("#clear").on("click", function () {
           //   d3.select("#next").attr("disabled", false);
           //   d3.select("svg").selectAll("*").remove();
@@ -76,10 +80,10 @@ function display_agg() {
   d3.select("#next").attr("disabled", "disabled");
 }
 
-function display_actual() {
-  chart.draw_actual();
-  d3.select("#next").on("click", display_agg);
-}
+// function display_actual() {
+//   chart.draw_data();
+//   d3.select("#next").on("click", display_agg);
+// }
 
 function draw_feedback() {
   if (chart.user_done) {
@@ -88,15 +92,15 @@ function draw_feedback() {
   }
 }
 
-function display_feedback() {
-  draw_feedback();
-  display_actual();
-  if (show_agg == true) {
-    document.getElementById('next').innerHTML = "Show me how other people did"
-  }
+// function display_feedback() {
+//   draw_feedback();
+//   display_actual();
+//   if (show_agg == true) {
+//     document.getElementById('next').innerHTML = "Show me how other people did"
+//   }
   
   // d3.select("#next").on("click", display_actual);
-}
+// }
 
 // function populate_list(id, items, onclick) {
 //   d3.select("#" + id)
@@ -113,17 +117,71 @@ function display_feedback() {
 //     .html(function (d) { return d.display; });
 // }
 
-function onDataClick(event, dataIndex) {
-  data = datasets[dataIndex]
+function onDataClick(event, id) {
+  data = datasets[id]
   d3.selectAll(".datasource").classed("active", false);
   d3.select(event.target.parentNode).classed("active", true);
   d3.select("svg").selectAll("*").remove();
   make_experiment(data);
+  dataIndex = id
 }
 
-function onHumanClick(event, humanIndex) {
+function onHumanClick(event, id) {
   d3.selectAll(".human").classed("active", false);
   d3.select(event.target.parentNode).classed("active", true);
+  humanIndex = id
+}
+
+function onTeacherClick(event, id) {
+  d3.selectAll(".teacher").classed("active", false);
+  d3.select(event.target.parentNode).classed("active", true);
+  teacherIndex = id
+}
+
+function onEvaluatorClick(event, id) {
+  d3.selectAll(".evaluator").classed("active", false);
+  d3.select(event.target.parentNode).classed("active", true);
+  evaluatorIndex = id
+}
+
+function runPipeline() {
+  const http_request = new XMLHttpRequest();
+  const url="pipeline?data="+datasets[dataIndex].true_values+"&h="+humans[humanIndex]+"&t="+teachers[teacherIndex]+"&e="+evaluators[evaluatorIndex];
+  http_request.open("GET", url);
+  http_request.send();
+
+  http_request.onreadystatechange = function(){
+    if(http_request.readyState == 4){
+      var jsonObj = JSON.parse(http_request.responseText);
+      var sample = jsonObj['sample']
+      var score = jsonObj['score']
+      var x = jsonObj['x']
+      var prediction = jsonObj['prediction']
+      // console.log(sample)
+      // console.log(score)
+      var prediction_data = x.map(function(d, i) {
+        return [d, prediction[i]];
+      });
+      chart.draw_prediction(prediction_data)
+
+      console.log(sample)
+      sample = sample[0].map(function (x, i) { return [x, sample[1][i]]; });
+      console.log(sample)
+      chart.draw_sample(sample)
+      
+      console.log(prediction_data)
+
+      d3.select("#score").text("score = " + score)
+      document.getElementById('feedbackDiv').style.display = "block"
+      d3.select("#next").attr("disabled", true);
+    }
+  }
+}
+
+function onResetClick() {
+  d3.select("#next").attr("disabled", null);
+  d3.select("svg").selectAll("*").remove();
+  make_experiment(datasets[dataIndex])
 }
 
 // populate_list("datasource", datasets, function (d) {
@@ -153,16 +211,16 @@ function parse_row(dataset, row) {
 	return row;
 }
 
-d3.select("#agg_on").on("click", function () {
-  d3.selectAll(".show_agg").classed("active", false);
-  d3.select(this.parentNode).classed("active", true);
-  show_agg = true;
-});
+// d3.select("#agg_on").on("click", function () {
+//   d3.selectAll(".show_agg").classed("active", false);
+//   d3.select(this.parentNode).classed("active", true);
+//   show_agg = true;
+// });
 
-d3.select("#agg_off").on("click", function () {
-  d3.selectAll(".show_agg").classed("active", false);
-  d3.select(this.parentNode).classed("active", true);
-  show_agg = false;
-});
+// d3.select("#agg_off").on("click", function () {
+//   d3.selectAll(".show_agg").classed("active", false);
+//   d3.select(this.parentNode).classed("active", true);
+//   show_agg = false;
+// });
 
 make_experiment(datasets[0])

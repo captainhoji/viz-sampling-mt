@@ -227,7 +227,7 @@ d3.line_ev = function (true_values, aggregate_values, dataset, options) {
     d3.select(".line").attr("d", guess_line(data));
   };
 
-  line_ev.draw_actual = function() {
+  line_ev.draw_data = function(data) {
     line_ev.disable_edit()
   	// user_guess_slope = slope_by_inflections(user_guess_to_data(user_guess));
   	// actual_data_slope = slope_by_inflections(true_values);
@@ -240,9 +240,8 @@ d3.line_ev = function (true_values, aggregate_values, dataset, options) {
 		// .attr("class", "comparisonLine")
 		// .attr("d", actual_line(indexed_data));
 
-
     var path = svg.append("path")
-      .datum(true_values)
+      .datum(data)
       .attr("fill", "none")
       .attr("stroke", "steelblue")
       .attr("stroke-width", 1.5)
@@ -261,65 +260,97 @@ d3.line_ev = function (true_values, aggregate_values, dataset, options) {
         .attr('stroke-dashoffset', 0);
   };
 
+  line_ev.draw_prediction = function(data) {
+    var path = svg.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "orange")
+      .attr("stroke-width", 2)
+      .attr("d", d3.svg.line()
+        .x(function(d) { return x(d[0]) })
+        .y(function(d) { return y(d[1]) })
+        )
 
-    line_ev.abs_error_diverging = function() {
-      var colors = ['#ca0020','#f4a582','#f7f7f7','#92c5de','#0571b0'].reverse();
-      var bin = d3.scale.quantize().domain([-y.domain()[1], y.domain()[1]]).range(colors);
-      svg.selectAll(".points")
-         .data(_(line_ev.user_error()).map(1).value())
-         .transition()
-         .style("fill", bin);
-    };
+    var totalLength = path.node().getTotalLength();
 
-    line_ev.abs_error_seq = function() {
-      var colors = ['#fef0d9','#fdcc8a','#fc8d59','#d7301f'];
-      var bin = d3.scale.quantize().domain([0, y.domain()[1]]).range(colors);
-      getMagnitudeLegend()
-      svg.selectAll(".points")
-         .data(_(line_ev.user_error()).map(1).map(Math.abs).value())
-         .transition()
-         .style("fill", function(d) {if (d == 0) {return "#fff";} else {return bin(d);}});
-   };
+    path.attr("stroke-dasharray", totalLength + ' ' + totalLength)
+      .attr("stroke-dashoffset", totalLength)
+      .transition()
+        .duration(1000)
+        .ease("linear")
+        .attr('stroke-dashoffset', 0);
+  };
 
-   line_ev.noFeedback = function() {
+  line_ev.draw_sample = function(data) {
+    svg.selectAll("circles")
+      .data(data)
+      .enter()
+      .append("circle")
+        .attr("fill", "red")
+        .attr("stroke", "none")
+        .attr("cx", function(d) { return x(d[0]) })
+        .attr("cy", function(d) { return y(d[1]) })
+        .attr("r", 5)
+  }
 
-   }
+  line_ev.abs_error_diverging = function() {
+    var colors = ['#ca0020','#f4a582','#f7f7f7','#92c5de','#0571b0'].reverse();
+    var bin = d3.scale.quantize().domain([-y.domain()[1], y.domain()[1]]).range(colors);
+    svg.selectAll(".points")
+       .data(_(line_ev.user_error()).map(1).value())
+       .transition()
+       .style("fill", bin);
+  };
 
-    line_ev.direction_feedback_arrow_abs_error = function() {
-      getBothLegend();
-      var colors = ['#fef0d9','#fdcc8a','#fc8d59','#d7301f'];
-      var bin = d3.scale.quantize().domain([0, y.domain()[1]]).range(colors);
-      svg.selectAll(".points")
-         .data(_(line_ev.user_error()).map(1).map(Math.abs).value())
-         .transition()
-         .style("fill", function(d) {if (d == 0) {return "#fff";} else {return bin(d);}});
-      
-      user_error = _(line_ev.user_error()).map(1).value();
-      var year_map = true_values.map(function (n) { return n[0]; });
-        svg.selectAll(".group-points")
-         .data(convert_obj_to_array(user_guess))
-         .append("polygon")
-         .attr("points",function(d,i) {if (user_error[i] > 0) {return getStringForPoint("n", d[0] - 10,d[1] + 8); } else {return getStringForPoint("p", d[0] - 10,d[1] - 24); } })
-         .attr("fill",'steelblue')
-          .attr("width", "20px")
-          .attr("height", "20px");
+  line_ev.abs_error_seq = function() {
+    var colors = ['#fef0d9','#fdcc8a','#fc8d59','#d7301f'];
+    var bin = d3.scale.quantize().domain([0, y.domain()[1]]).range(colors);
+    getMagnitudeLegend()
+    svg.selectAll(".points")
+       .data(_(line_ev.user_error()).map(1).map(Math.abs).value())
+       .transition()
+       .style("fill", function(d) {if (d == 0) {return "#fff";} else {return bin(d);}});
+  };
+
+  line_ev.noFeedback = function() {
+
+  }
+
+  line_ev.direction_arrow_abs_error = function() {
+    getBothLegend();
+    var colors = ['#fef0d9','#fdcc8a','#fc8d59','#d7301f'];
+    var bin = d3.scale.quantize().domain([0, y.domain()[1]]).range(colors);
+    svg.selectAll(".points")
+       .data(_(line_ev.user_error()).map(1).map(Math.abs).value())
+       .transition()
+       .style("fill", function(d) {if (d == 0) {return "#fff";} else {return bin(d);}});
+    
+    user_error = _(line_ev.user_error()).map(1).value();
+    var year_map = true_values.map(function (n) { return n[0]; });
+      svg.selectAll(".group-points")
+       .data(convert_obj_to_array(user_guess))
+       .append("polygon")
+       .attr("points",function(d,i) {if (user_error[i] > 0) {return getStringForPoint("n", d[0] - 10,d[1] + 8); } else {return getStringForPoint("p", d[0] - 10,d[1] - 24); } })
+       .attr("fill",'steelblue')
+        .attr("width", "20px")
+        .attr("height", "20px");
 
 
 
-    }
+  }
 
-    line_ev.direction_feedback_arrow = function() {
-      user_error = _(line_ev.user_error()).map(1).value();
-      var year_map = true_values.map(function (n) { return n[0]; });
-      getDirectionLegend()
-        svg.selectAll(".group-points")
-         .data(convert_obj_to_array(user_guess))
-         .append("polygon")
-         .attr("points",function(d,i) {if (user_error[i] > 0) {return getStringForPoint("n", d[0] - 10,d[1] + 8); } else {return getStringForPoint("p", d[0] - 10,d[1] - 24); } })
-         .attr("fill",'steelblue')
-          .attr("width", "20px")
-          .attr("height", "20px");
-    };
+  line_ev.direction_feedback_arrow = function() {
+    user_error = _(line_ev.user_error()).map(1).value();
+    var year_map = true_values.map(function (n) { return n[0]; });
+    getDirectionLegend()
+      svg.selectAll(".group-points")
+       .data(convert_obj_to_array(user_guess))
+       .append("polygon")
+       .attr("points",function(d,i) {if (user_error[i] > 0) {return getStringForPoint("n", d[0] - 10,d[1] + 8); } else {return getStringForPoint("p", d[0] - 10,d[1] - 24); } })
+       .attr("fill",'steelblue')
+        .attr("width", "20px")
+        .attr("height", "20px");
+  };
 
    
 

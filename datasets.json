@@ -2,7 +2,7 @@
   "datasets": [
   {
     "display" : "Worldwide CO2 Emissions",
-    "true_values" : "data/co2Emissions.csv",
+    "true_values" : "co2Emissions.csv",
     "user_values" : "userData/co2UserData.csv",
     "x_label" : "Year",
     "x_prop" : "Year",
@@ -12,7 +12,7 @@
   },
   {
     "display" : "US Immigrant Population",
-    "true_values" : "data/immigrantPopulation.csv",
+    "true_values" : "immigrantPopulation.csv",
     "user_values" : "userData/immigrationUserData.csv",
     "x_label" : "Year",
     "x_prop" : "Year",
@@ -22,7 +22,7 @@
   },
   {
     "display" : "US Wealth Share of the Top 10%",
-    "true_values" : "data/wealthShare.csv",
+    "true_values" : "wealthShare.csv",
     "user_values" : "userData/wealthUserData.csv",
     "x_label" : "Year",
     "x_prop" : "Year",
@@ -32,7 +32,7 @@
   },
   {
     "display" : "Life Expectancy of Venezuela",
-    "true_values" : "data/s0.csv",
+    "true_values" : "s0.csv",
     "x_label" : "Year",
     "x_prop" : "Year",
     "y_label" : "Life Expectancy (Age)",
@@ -41,7 +41,7 @@
   },
   {
     "display" : "Military Expenditure of Argentina",
-    "true_values" : "data/s1.csv",
+    "true_values" : "s1.csv",
     "x_label" : "Year",
     "x_prop" : "Year",
     "y_label" : "Military Expenditure (Dollars)",
@@ -50,7 +50,7 @@
   },
   {
     "display" : "Air Pollution in London",
-    "true_values" : "data/s2.csv",
+    "true_values" : "s2.csv",
     "x_label" : "Year",
     "x_prop" : "Year",
     "y_label" : "Suspended Particulate Matter (SPM)",
@@ -59,7 +59,7 @@
   },
   {
     "display" : "Alcohol Consumption of Americans",
-    "true_values" : "data/s3.csv",
+    "true_values" : "s3.csv",
     "x_label" : "Year",
     "x_prop" : "Year",
     "y_label" : "Alcohol Consumption per Individual (Liters)",
@@ -68,7 +68,7 @@
   },
   {
     "display" : "GDP of Costa Rica",
-    "true_values" : "data/s4.csv",
+    "true_values" : "s4.csv",
     "x_label" : "Year",
     "x_prop" : "Year",
     "y_label" : "GDP per Capita (Dollars)",

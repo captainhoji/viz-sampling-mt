@@ -107,9 +107,14 @@
 			<div class="colInner" id="feedback">
 		          <p>Teacher Strategy</p>
 		          <ul class="nav nav-pills mode-switch">
-			        <li class="active switch-measurement"><a>Assume OLS</a></li>
-			        <li class="switch-measurement"><a>Assume connect the dots</a></li>
-			        <li class="switch-measurement"><a>Hill climb with restart</a></li>
+		          	{%for i in range(teachers|length)%}
+		          		{%if i == 0%}
+			            	<li class="active switch-measurement
+			            	{%else%}
+			        	<li class="switch-measurement
+			        	{%endif%}
+			        	teacher"><a onclick="onTeacherClick(event, {{i}})">{{teachers[i]}}</a></li>
+			        {%endfor%}
 			  </ul>
 		          <!-- <span class="theory"> When you're learning new things, "clarifying and addressing comprehension failures" will help you learn better (Bielaczyc et al., 1995). The feedback will help you to learn about data better.</span> -->
 	          	</div>
@@ -121,8 +126,14 @@
 		          <p>Evaluation Criteria</p>
 		          <span class="theory"></span>
 			     <ul class="nav nav-pills mode-switch">
-			     <li class="active switch-measurement show_agg"><a id="agg_on">Retrieve Value</a></li>
-			     <li class="switch-measurement show_agg"><a id="agg_off">Find Extrema</a></li>
+			     	{%for i in range(evaluators|length)%}
+		          		{%if i == 0%}
+			            	<li class="active switch-measurement
+			            	{%else%}
+			        	<li class="switch-measurement
+			        	{%endif%}
+			        	evaluator"><a onclick="onEvaluatorClick(event, {{i}})">{{evaluators[i]}}</a></li>
+			        {%endfor%}
 			     </ul>
 	          	</div>
 			</div>
@@ -137,16 +148,16 @@
 
 			<div id="lineButtons"> <br>
 			  <center>
-			    <button class="btn btn-success" disabled="disabled" id="next">Generate</button> &nbsp;&nbsp;
-			    <button class="btn btn-danger" id="clear">Reset</button>
+			    <button class="btn btn-success" id="next" onclick="runPipeline()">Generate</button> &nbsp;&nbsp;
+			    <button class="btn btn-danger" id="clear" onclick="onResetClick()">Reset</button>
 			  </center>
 			</div>
-<!-- 			<div id = "feedbackDiv">
+			<div id = "feedbackDiv">
 				<div id="dataDescriptor"></div>
 				<div id="textFeedback">
-					<div class="containerLv1">Here's how you did with respect to trends in the actual data:</div>
+					<div class="containerLv1" id="score"></div>
 				</div>
-			</div> -->
+			</div>
 			
 			<hr width="100%" class="greyhr">
 <!-- 				<div class="containerLv1">References </div>
